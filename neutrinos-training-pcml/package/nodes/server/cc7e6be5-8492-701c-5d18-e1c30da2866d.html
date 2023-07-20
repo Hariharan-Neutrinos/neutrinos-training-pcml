@@ -1,7 +1,32 @@
 <script
 	type="text/x-red"
 	data-template-name="cc7e6be5-8492-701c-5d18-e1c30da2866d"
-></script>
+>
+<dummy-tag file-upload>
+	<div class="editor-form-row">
+		<!-- FILE UPLOAD SECTION -->
+		<h5 class="pallete-title-underline" id="file-options-header">
+			File Upload
+		</h5>
+		<div class="editor-form-row">
+			<div style="display:flex">
+				<input type="text" id="node-input-wsdlFile" readonly>
+				<button class="map-button-wrp">
+					<image id="node-config-uplaodfile" class="map-button" src="assets/serviceDesigner/upload.svg"
+						title="Click to upload the file" style="width:16px"></image>
+				</button>
+				<button class="map-button-wrp">
+					<image id="node-config-wsdlFile-clear" class="map-button" title="Delete" src="assets/clear.svg"></image>
+				</button>
+	
+				<input type="text" id="node-input-wsdlFilePath" hidden>
+				<input type="file" id="node-input-select-file" hidden>
+			</div>
+		</div>
+	</div>
+</dummy-tag>
+<button (click)="constructflows()">Generate</button>
+</script>
 <script type="text/javascript">
 	registerNode({
 		serviceType: 'server',
@@ -12,109 +37,221 @@
 			category: 'General',
 
 			defaults: {
-				name: { value: '' },
-			},
-			devInProgress: true,
-			shape: 'circle',
+                name: {
+                    value: '',
+                },
+                outputs: {
+                    value: 1,
+                },
+                bhVariables: {},
+                localVariables: {},
+                accept_bh: {
+                    value: '',
+                },
+                checkUpdate: {
+                    value: undefined,
+                },
+                wsdlFiles: {
+                    value: {
+                        configFiles: [],
+                    },
+                },
+                wsdlFile: {
+                    value: '',
+                    required: true,
+                },
+                wsdlFilePath: {
+                    value: '',
+                },
+                filestodelete: { value: [] },
+            },
+            inputs: 0,
+            outputs: 1,
+            paletteLabel: 'PCML',
+            icon: 'ndefault-datamodel/dm_entity-processor.svg',
+            label: function () {
+                return this.name || 'PCML';
+            },
+            labelStyle: function () {
+                return this.name ? 'node_label_italic' : '';
+            },
+            oneditinit: function (SD) {
+                const node = this;
+                const form = $('#dialog-form');
+                const typedFieldPrefix = 'node-input-typed-';
+                const fileName = $('#node-input-wsdlFile').inputField({
+                    value: node.wsdlFile,
+                    placeholder: 'PCML File',
+                    validateOnCreate: true,
+                    required: true,
+                });
+                function osPathConcatenator({ value }, v = '') {
+                    return (
+                        `os.${value}() + "` +
+                        (!v || value.startsWith('/') ? v : '/' + v) +
+                        `"`
+                    );
+                }
+                form.find('input[type="typed"]').each(function () {
+                    const inputElm = $(this);
+                    const id = inputElm.attr('id');
+                    $(this).typedInput(
+                        id
+                            ? typedInputOptions[
+                            id.replace(typedFieldPrefix, '')
+                            ]
+                            : null
+                    );
+                });
+                $('#node-config-uplaodfile').on('click', () => {
+                    $('#node-input-select-file').trigger('click');
+                });
+            },
+            oneditprepare: function (SD) {
+                let node = this;
+                node.tempVarStore = {
+                    bhVariables: [],
+                    localVariables: [],
+                };
+                const doneBtn = $('#node-dialog-ok');
+                const form = $('#dialog-form');
+                if (!this.checkUpdate) {
+                    this.bhVariables = [
+                        {
+                            key: 'result',
+                            defaultValue: {
+                                type: 'any',
+                                value: '',
+                            },
+                            output: true,
+                        }
+                    ];
+                }
+                $('#node-input-typed-uploadpath').typedInput('value', '');
+                function uploadFiles(files, fileType) {
+                    console.log("@@",files[0].path)
+					node.filePath = files[0].path;
+                    for (let j = 0; j < files.length; j++) {
+                        const filePaths = node.wsdlFiles.configFiles.map(
+                            f => f.name
+                        );
+                        if (filePaths.includes(files[j].name)) {
+                            console.log('files already exist');
+                            SRD.dialogService.openSnackBar(
+                                `File already exists`
+                            );
+                            $('#node-input-xsdFiles').val('');
+                        } else {
+                            node.wsdlFiles.configFiles.push({
+                                name: files[j].name,
+                                path: files[j].path,
+                            });
+                            if (fileType) {
+                                $(`#key-properties-content`).editableList(
+                                    'addItem',
+                                    {
+                                        rowData: { key: files[j].name },
+                                        validator: false,
+                                    }
+                                );
+                            }
+                        }
+                    }
+                }
+                function wsdlFileCheck() {
+                    if ($('#node-input-wsdlFile').val() === '') {
+                        return false;
+                    } else {
+                        return true;
+                    }
+                }
+                function validateForm() {
+                    let wsdl = wsdlFileCheck();
+                    if (
+                        [...$('.red-ui-typedInput-input.input-error')].some(
+                            e => !$(e).is(':hidden')
+                        ) ||
+                        !wsdl
+                    ) {
+                        doneBtn.addClass('disabled');
+                    } else {
+                        doneBtn.removeClass('disabled');
+                    }
+                }
+                $('#node-config-wsdlFile-clear').on('click', () => {
+                    clearFilePaths('wsdlFile', 'wsdlFilePath');
+                    validateForm();
+                });
+                $('#node-input-select-file').change(changes => {
+                    /*When wsdl file is uploaded. store the file name and push to configFiles array*/
+                    uploadFiles([...changes.target.files]);
+                    $('#node-input-wsdlFile').inputField(
+                        'value',
+                        changes.target.files[0].name
+                    );
+                    validateForm();
+                });
+                function clearFilePaths(fileNameVar, filePathVar) {
+                    if ($(`#node-input-${fileNameVar}`).val().length > 0) {
+                        deleteFile($(`#node-input-${fileNameVar}`).val());
+                        $(`#node-input-${fileNameVar}`).inputField('reset');
+                        $(`#node-input-${fileNameVar}`).inputField(
+                            'valid',
+                            false
+                        );
+                        $(`#node-input-${filePathVar}`).val('');
+                        $('#node-input-select-file').val('');
+                    }
+                }
+                function deleteFile(filename) {
+                    node.filestodelete.push(filename);
+                    let configFiles = node.wsdlFiles.configFiles;
+                    if (configFiles.length > 0) {
+                        for (let i = 0; i < configFiles.length; i++) {
+                            if (configFiles[i].name === filename) {
+                                configFiles.splice(i, 1);
+                            }
+                        }
+                        node.wsdlFiles.configFiles = configFiles;
+                    }
+                }
+            },
+            oneditsave: function (SD) {
+                const node = this;
+                const form = $('#dialog-form');
+                this.bhVariables = this.tempVarStore.bhVariables.map(x => ({
+                    key: x.key,
+                    defaultValue: x.defaultValue,
+                    output: x.output,
+                    keyType: x.keyType,
+                }));
 
-			inputs: 0,
-			outputs: 1,
-
-			paletteLabel: 'Pcml',
-
-			label: function editlabel(SD) {
-				let label = 'Pcml';
-				if (this.name) {
-					label = this.name;
-				}
-				return label.replace(/['"]+/g, '');
-			},
-			labelStyle: function () {
-				return this.name ? 'node_label_italic' : '';
-			},
-			initdefaults: function (n, S) {
-				function handleDependencies(controls, value) {
-					if (controls instanceof Array) {
-						for (let i = 0; i < controls.length; i++) {
-							if (controls[i].action === 'required') {
-								if (
-									(controls[i].equal &&
-										controls[i].equal.to_values.includes(
-											value
-										)) ||
-									(controls[i].notEqual &&
-										!controls[
-											i
-										].notEqual.to_values.includes(value))
-								) {
-									$('#' + controls[i].id)[controls[i].type](
-										'required'
-									);
-									n._def.defaults[
-										controls[i].property
-									].required = true;
-								} else {
-									$('#' + controls[i].id)[controls[i].type](
-										'resetRequired'
-									);
-									n._def.defaults[
-										controls[i].property
-									].required = false;
-								}
-							} else if (controls[i].action === 'hidden') {
-								if (
-									(controls[i].equal &&
-										controls[i].equal.to_values.includes(
-											value
-										)) ||
-									(controls[i].notEqual &&
-										!controls[
-											i
-										].notEqual.to_values.includes(value))
-								) {
-									$('#' + controls[i].id)[controls[i].type](
-										'hide'
-									);
-									$('#' + controls[i].id)
-										.closest('.editor-form-row')
-										.hide();
-									S.defaults.excludeFromValidation(
-										n,
-										controls[i].property
-									);
-								} else {
-									$('#' + controls[i].id)
-										.closest('.editor-form-row')
-										.show();
-									$('#' + controls[i].id)[controls[i].type](
-										'show'
-									);
-									S.defaults.includeForValidation(
-										n,
-										controls[i].property
-									);
-								}
-								S.defaults.validateForm(true);
-							}
-						}
-					}
-				}
-				return Object.assign(this, {
-					fileUpload: {
-						attrDef: {
-							options: { multifile: false, required: true },
-							attrType: 'FILE_UPLOAD',
-							label: 'File Upload',
-						},
-						validate: (v) =>
-							v &&
-							Array.isArray(v.configFiles) &&
-							v.configFiles.length,
-						value: null,
-						required: true,
-					},
-				});
-			},
-		},
-	});
+                this.localVariables = this.tempVarStore.localVariables.map(
+                    x => ({
+                        key: x.key,
+                        defaultValue: x.defaultValue,
+                        output: x.output,
+                    })
+                );
+                if (this.filestodelete.length > 0) {
+                    SD.configNodesService.deleteConfigFile(
+                        SD.appName,
+                        'soap-config',
+                        this.id,
+                        this.filestodelete,
+                        'wsdlFiles'
+                    );
+                    console.log(`File deleted`);
+                    this.filestodelete = [];
+                }
+                console.log(node)
+                delete this.tempVarStore;
+            },
+            oneditcancel: function () {
+                delete this.tempVarStore;
+            },
+            aftereditsave: function (changes) {
+            }
+        },
+    });
 </script>

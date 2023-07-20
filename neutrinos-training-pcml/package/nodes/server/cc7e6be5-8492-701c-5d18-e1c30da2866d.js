@@ -1,4 +1,11 @@
 let BaseComponent = require('@jatahworx/bhive-toolkits').BaseComponent;
+// import { constructService, constructDMSchema } from "./constructFunctions.js";
+// import {
+//   generateJSONFileFromJSON,
+//   generateJSONFileFromXMLFile,
+//   getJSONFromXMLFile,
+//   getSourceValueFromFile,
+// } from "./utils.js";
 
 module.exports = class pcml extends BaseComponent {
 	constructor(constructorOptions) {
@@ -10,6 +17,7 @@ module.exports = class pcml extends BaseComponent {
 			'cc7e6be5-8492-701c-5d18-e1c30da2866d'
 		);
 		this.viewType = BaseComponent.viewTypes.SERVER;
+		this.filePath = '';
 
 		/* Eg to get attribute values
                                               (Attribute Name)
@@ -112,4 +120,32 @@ module.exports = class pcml extends BaseComponent {
         }
         `;
 	}
+	constructflows(filePath){
+		const pcmlJSON = getJSONFromXMLFile(filePath);
+		generateJSONFileFromXMLFile(filePath);
+
+		let { struct } = pcmlJSON.pcml;
+		if(pcmlJSON.pcml.hasOwnProperty('program')){
+		const {program} = pcmlJSON.pcml
+		struct.push(...program);
+		}
+		//Generating DM Entities
+		const dmSchema = constructDMSchema(struct);
+		generateJSONFileFromJSON(dmSchema,"dmEntitySchema.json");
+
+		let finalOutput = {
+		serviceDesignerType: "server",
+		exportedDesignApp: "pocnodeapp",
+		};
+
+		const programOutput = constructService(
+		pcmlJSON,
+		getSourceValueFromFile(filePath)
+		);
+		finalOutput.design = programOutput;
+
+		//! This is our final Output
+		generateJSONFileFromJSON(finalOutput, "outputService.json");
+	}
+
 };
