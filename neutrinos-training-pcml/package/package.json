@@ -7,6 +7,10 @@
     "author": "",
     "license": "ISC",
     "dependencies": {
-        "@jatahworx/bhive-toolkits": "9.1.4"
+        "@jatahworx/bhive-toolkits": "9.1.4",
+        "dotenv": "^16.0.3",
+        "json5": "^2.2.3",
+        "sax": "^1.2.4",
+        "xml2js": "^0.4.23"
     }
 }

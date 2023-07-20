@@ -1,0 +1,18 @@
+{
+  "id": "sd_LwwfBcBycTSr7V6o",
+  "type": "Script",
+  "z": "SSD_SERVICE_ID_sd_BOCwFRXYKgRk5iV9",
+  "viewType": "common",
+  "nodeType": "flow",
+  "name": "",
+  "script": "",
+  "functionName": "sd_LwwfBcBycTSr7V6o",
+  "category": "Function",
+  "x": 365,
+  "y": 120,
+  "wires": [["sd_PCLivrXARrCOwknH"]],
+  "__n_excludedFromValidation__": {},
+  "generateNext": false,
+  "serviceName": "sampleService",
+  "generated": true
+}

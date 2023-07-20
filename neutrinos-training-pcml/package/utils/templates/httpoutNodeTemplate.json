@@ -1,0 +1,54 @@
+{
+    "id": "sd_Rv4kjRulVI3x4kJH",
+    "type": "HttpOut",
+    "z": "SSD_SERVICE_ID_sd_BOCwFRXYKgRk5iV9",
+    "viewType": "server",
+    "nodeType": "flow",
+    "name": "",
+    "swaggerStatusCode": {
+        "type": "num",
+        "value": 200,
+        "ssd_typedInputField": true
+    },
+    "headers": {},
+    "responseBody": {
+        "type": "bh",
+        "value": "result",
+        "ssd_typedInputField": true
+    },
+    "httpcode": {
+        "type": "num",
+        "value": 200,
+        "ssd_typedInputField": true
+    },
+    "responseType": "obj",
+    "swaggerResponse": {},
+    "responseMapping": {
+        "status": 200,
+        "obj": "bh.result",
+        "send": "bh.result"
+    },
+    "dataModelIsArray": true,
+    "inputs": 1,
+    "outputs": 0,
+    "erd": "",
+    "entity": "",
+    "ref": "",
+    "editableListData": {
+        "headers": []
+    },
+    "cookiesList": {},
+    "switchStates": {
+        "headers": "Map",
+        "cookies": "Map"
+    },
+    "functionName": "sd_IpUaU51q741upXgr",
+    "category": "HTTP",
+    "x": 785,
+    "y": 220,
+    "wires": [],
+    "__n_excludedFromValidation__": {},
+    "generateNext": true,
+    "generated": true,
+    "serviceName": "sampleService"
+}

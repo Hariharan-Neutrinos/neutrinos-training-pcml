@@ -1,0 +1,54 @@
+{
+  "id": "sd_PCLivrXARrCOwknH",
+  "type": "db3e4321-ccd2-d8f5-26fb-f290f0c49b99",
+  "z": "SSD_SERVICE_ID_sd_BOCwFRXYKgRk5iV9",
+  "viewType": "server",
+  "nodeType": "flow",
+  "name": "",
+  "parameterList": [],
+  "globalVariables": [],
+  "connection": "sd_1fe0pQ6DcZ5qspGJ",
+  "library": "bh.aaa",
+  "program": "bh.program",
+  "procedure": "bh",
+  "returnExpected": false,
+  "parameterType": "reference",
+  "parameters": "bh.param",
+  "result": "bh.res",
+  "functionName": "sd_PCLivrXARrCOwknH",
+  "category": "IBMi",
+  "x": 585,
+  "y": 120,
+  "wires": [["sd_Rv4kjRulVI3x4kJH"]],
+  "__ssdTypeInputs__": {
+    "library": {
+      "type": "bh",
+      "value": "aaa",
+      "constant": false
+    },
+    "program": {
+      "type": "bh",
+      "value": "program",
+      "constant": false
+    },
+    "procedure": {
+      "type": "bh",
+      "value": "",
+      "constant": false
+    },
+    "parameters": {
+      "type": "bh",
+      "value": "param",
+      "constant": false
+    },
+    "result": {
+      "type": "bh",
+      "value": "res",
+      "constant": false
+    }
+  },
+  "__n_excludedFromValidation__": {},
+  "generateNext": false,
+  "serviceName": "sampleService",
+  "generated": true
+}
