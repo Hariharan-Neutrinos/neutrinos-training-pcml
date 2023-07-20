@@ -1,0 +1,12 @@
+{
+    "name": "neutrinos-training-pcml",
+    "version": "1.0.0",
+    "description": "",
+    "main": "index.js",
+    "scripts": {},
+    "author": "",
+    "license": "ISC",
+    "dependencies": {
+        "@jatahworx/bhive-toolkits": "9.1.4"
+    }
+}

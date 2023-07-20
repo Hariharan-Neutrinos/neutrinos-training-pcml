@@ -1,0 +1,23 @@
+{
+    "nodeName": "cc7e6be5-8492-701c-5d18-e1c30da2866d",
+    "nodeType": "server",
+    "category": "General",
+    "paletteLabel": "Pcml",
+    "colorCode": "",
+    "displayName": "Pcml",
+    "isConfig": false,
+    "config": [
+        {
+            "name": "fileUpload",
+            "type": "FILE_UPLOAD",
+            "label": "File Upload",
+            "required": true,
+            "id": "node-input-fileupload-fileUpload",
+            "errorMessage": null,
+            "multifile": null
+        }
+    ],
+    "label": "function editlabel(SD) {\n\tlet label = 'Pcml'\n\tif (this.name) {\n\t\tlabel = this.name\n\t}\n\treturn label.replace(/['\"]+/g, '');\n}\n",
+    "nodeIcon": "",
+    "nodeFlowType": "start"
+}
