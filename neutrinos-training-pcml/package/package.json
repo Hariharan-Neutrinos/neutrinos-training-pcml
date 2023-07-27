@@ -3,8 +3,9 @@
     "version": "1.0.0",
     "description": "",
     "main": "index.js",
+    "type": "commonjs",
     "scripts": {},
-    "author": "",
+    "author": "Hariharan J",
     "license": "ISC",
     "dependencies": {
         "@jatahworx/bhive-toolkits": "9.1.4",
