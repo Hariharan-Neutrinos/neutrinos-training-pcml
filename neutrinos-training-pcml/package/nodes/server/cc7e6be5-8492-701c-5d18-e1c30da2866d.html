@@ -1,288 +1,287 @@
 <script
-	type="text/x-red"
-	data-template-name="cc7e6be5-8492-701c-5d18-e1c30da2866d"
+  type="text/x-red"
+  data-template-name="cc7e6be5-8492-701c-5d18-e1c30da2866d"
 >
-<dummy-tag file-upload>
-	<div class="editor-form-row">
-		<!-- FILE UPLOAD SECTION -->
-		<h5 class="pallete-title-underline" id="file-options-header">
-			File Upload
-		</h5>
-		<div class="editor-form-row">
-			<div style="display:flex">
-				<input type="text" id="node-input-wsdlFile" readonly>
-				<button class="map-button-wrp">
-					<image id="node-config-uplaodfile" class="map-button" src="assets/serviceDesigner/upload.svg"
-						title="Click to upload the file" style="width:16px"></image>
-				</button>
-				<button class="map-button-wrp">
-					<image id="node-config-wsdlFile-clear" class="map-button" title="Delete" src="assets/clear.svg"></image>
-				</button>
-	
-				<input type="text" id="node-input-wsdlFilePath" hidden>
-				<input type="file" id="node-input-select-file" hidden>
-			</div>
-		</div>
-</dummy-tag>
-<div id="checkbox-container">
-    <!-- Checkboxes will be dynamically generated here -->
-</div>
-<button mat-raised-button color="primary" id="node-generate-button">Generate</button>
+  <dummy-tag file-upload>
+  	<div class="editor-form-row">
+  		<div class="editor-form-row">
+  			<div style="display:flex">
+  				<input type="text" id="node-input-wsdlFile" readonly>
+  				<button class="map-button-wrp">
+  					<image id="node-config-uplaodfile" class="map-button" src="assets/serviceDesigner/upload.svg"
+  						title="Click to upload the file" style="width:16px"></image>
+  				</button>
+  				<button class="map-button-wrp">
+  					<image id="node-config-wsdlFile-clear" class="map-button" title="Delete" src="assets/clear.svg"></image>
+  				</button>
+
+  				<input type="text" id="node-input-wsdlFilePath" hidden>
+  				<input type="file" id="node-input-select-file" hidden>
+  			</div>
+  		</div>
+  </dummy-tag>
+  <div id="checkbox-container">
+      <!-- Checkboxes will be dynamically generated here -->
+  </div>
+  <button mat-raised-button color="primary" id="node-generate-button">Generate</button>
 </script>
 <script type="text/javascript">
-	registerNode({
-		serviceType: 'server',
+  registerNode({
+    serviceType: "server",
 
-		nodeType: 'cc7e6be5-8492-701c-5d18-e1c30da2866d',
+    nodeType: "cc7e6be5-8492-701c-5d18-e1c30da2866d",
 
-		nodeDef: {
-			category: 'General',
+    nodeDef: {
+      category: "General",
 
-			defaults: {
-                name: {
-                    value: '',
-                },
-                outputs: {
-                    value: 1,
-                },
-                bhVariables: {},
-                localVariables: {},
-                accept_bh: {
-                    value: '',
-                },
-                checkUpdate: {
-                    value: undefined,
-                },
-                wsdlFiles: {
-                    value: {
-                        configFiles: [],
-                    },
-                },
-                wsdlFile: {
-                    value: '',
-                    required: true,
-                },
-                wsdlFilePath: {
-                    value: '',
-                },
-                filestodelete: { value: [] }
-            },
-            inputs: 0,
-            outputs: 1,
-            paletteLabel: 'PCML',
-            icon: 'ndefault-datamodel/dm_entity-processor.svg',
-            label: function () {
-                return this.name || 'PCML';
-            },
-            labelStyle: function () {
-                return this.name ? 'node_label_italic' : '';
-            },
-            oneditinit: function (SD) {
-                const node = this;
-                const form = $('#dialog-form');
-                const typedFieldPrefix = 'node-input-typed-';
-                const fileName = $('#node-input-wsdlFile').inputField({
-                    value: node.wsdlFile,
-                    placeholder: 'PCML File',
-                    validateOnCreate: true,
-                    required: true,
-                });
-                function osPathConcatenator({ value }, v = '') {
-                    return (
-                        `os.${value}() + "` +
-                        (!v || value.startsWith('/') ? v : '/' + v) +
-                        `"`
-                    );
-                }
-                form.find('input[type="typed"]').each(function () {
-                    const inputElm = $(this);
-                    const id = inputElm.attr('id');
-                    $(this).typedInput(
-                        id
-                            ? typedInputOptions[
-                            id.replace(typedFieldPrefix, '')
-                            ]
-                            : null
-                    );
-                });
-                $('#node-config-uplaodfile').on('click', () => {
-                    $('#node-input-select-file').trigger('click');
-                });
-                function generateCheckboxes() {
-                    const checkboxContainer = document.getElementById('checkbox-container');
-                    const inputData = ['Option 1', 'Option 2', 'Option 3', 'Option 4'];
-
-                    // Clear any existing checkboxes
-                    checkboxContainer.innerHTML = '';
-
-                    // Iterate over the input data array and create checkboxes
-                    inputData.forEach((item, index) => {
-                        const checkbox = document.createElement('input');
-                        checkbox.type = 'checkbox';
-                        checkbox.name = 'checkbox-' + index;
-
-                        const checkboxLabel = document.createElement('label');
-                        checkboxLabel.appendChild(checkbox);
-                        checkboxLabel.innerHTML += item;
-
-                        // Create a new div for each checkbox to ensure vertical alignment
-                        const checkboxDiv = document.createElement('div');
-                        checkboxDiv.appendChild(checkboxLabel);
-
-                        checkboxContainer.appendChild(checkboxDiv);
-                    });
-                }
-                generateCheckboxes();
-            },
-            oneditprepare: function (SD) {
-                let node = this;
-                node.tempVarStore = {
-                    bhVariables: [],
-                    localVariables: [],
-                };
-                const doneBtn = $('#node-dialog-ok');
-                const form = $('#dialog-form');
-                if (!this.checkUpdate) {
-                    this.bhVariables = [
-                        {
-                            key: 'result',
-                            defaultValue: {
-                                type: 'any',
-                                value: '',
-                            },
-                            output: true,
-                        }
-                    ];
-                }
-                $('#node-input-typed-uploadpath').typedInput('value', '');
-                function uploadFiles(files, fileType) {
-					node.filePath = files[0].path;
-                    for (let j = 0; j < files.length; j++) {
-                        const filePaths = node.wsdlFiles.configFiles.map(
-                            f => f.name
-                        );
-                        if (filePaths.includes(files[j].name)) {
-                            console.log('files already exist');
-                            SD.dialogService.openSnackBar(
-                                `File already exists`
-                            );
-                            $('#node-input-wsdlFile').val('');
-                        } else {
-                            node.wsdlFiles.configFiles.push({
-                                name: files[j].name,
-                                path: files[j].path,
-                            });
-                            if (fileType) {
-                                $(`#key-properties-content`).editableList(
-                                    'addItem',
-                                    {
-                                        rowData: { key: files[j].name },
-                                        validator: false,
-                                    }
-                                );
-                            }
-                        }
-                    }
-                    SD.nodes.callGeneratePrograms(node.filePath);
-                }
-                
-                function wsdlFileCheck() {
-                    if ($('#node-input-wsdlFile').val() === '') {
-                        return false;
-                    } else {
-                        return true;
-                    }
-                }
-                function validateForm() {
-                    let wsdl = wsdlFileCheck();
-                    if (
-                        [...$('.red-ui-typedInput-input.input-error')].some(
-                            e => !$(e).is(':hidden')
-                        ) ||
-                        !wsdl
-                    ) {
-                        doneBtn.addClass('disabled');
-                    } else {
-                        doneBtn.removeClass('disabled');
-                    }
-                }
-                $('#node-config-wsdlFile-clear').on('click', () => {
-                    clearFilePaths('wsdlFile', 'wsdlFilePath');
-                    validateForm();
-                });
-                $('#node-input-select-file').change(changes => {
-                    /*When wsdl file is uploaded. store the file name and push to configFiles array*/
-                    uploadFiles([...changes.target.files]);
-                    $('#node-input-wsdlFile').inputField(
-                        'value',
-                        changes.target.files[0].name
-                    );
-                    validateForm();
-                });
-                $('#node-generate-button').on('click', () => {
-                    console.log("SDDDDDDDDD", SD);
-                });
-                function clearFilePaths(fileNameVar, filePathVar) {
-                    if ($(`#node-input-${fileNameVar}`).val().length > 0) {
-                        deleteFile($(`#node-input-${fileNameVar}`).val());
-                        $(`#node-input-${fileNameVar}`).inputField('reset');
-                        $(`#node-input-${fileNameVar}`).inputField(
-                            'valid',
-                            false
-                        );
-                        $(`#node-input-${filePathVar}`).val('');
-                        $('#node-input-select-file').val('');
-                    }
-                }
-                function deleteFile(filename) {
-                    node.filestodelete.push(filename);
-                    let configFiles = node.wsdlFiles.configFiles;
-                    if (configFiles.length > 0) {
-                        for (let i = 0; i < configFiles.length; i++) {
-                            if (configFiles[i].name === filename) {
-                                configFiles.splice(i, 1);
-                            }
-                        }
-                        node.wsdlFiles.configFiles = configFiles;
-                    }
-                }
-            },
-            oneditsave: function (SD) {
-                const node = this;
-                const form = $('#dialog-form');
-                this.bhVariables = this.tempVarStore.bhVariables.map(x => ({
-                    key: x.key,
-                    defaultValue: x.defaultValue,
-                    output: x.output,
-                    keyType: x.keyType,
-                }));
-
-                this.localVariables = this.tempVarStore.localVariables.map(
-                    x => ({
-                        key: x.key,
-                        defaultValue: x.defaultValue,
-                        output: x.output,
-                    })
-                );
-                if (this.filestodelete.length > 0) {
-                    SD.configNodesService.deleteConfigFile(
-                        SD.appName,
-                        'soap-config',
-                        this.id,
-                        this.filestodelete,
-                        'wsdlFiles'
-                    );
-                    console.log(`File deleted`);
-                    this.filestodelete = [];
-                }
-                console.log(node)
-                delete this.tempVarStore;
-            },
-            oneditcancel: function () {
-                delete this.tempVarStore;
-            },
-            aftereditsave: function (changes) {
-            }
+      defaults: {
+        name: {
+          value: "",
         },
-    });
+        outputs: {
+          value: 1,
+        },
+        bhVariables: {},
+        localVariables: {},
+        accept_bh: {
+          value: "",
+        },
+        checkUpdate: {
+          value: undefined,
+        },
+        wsdlFiles: {
+          value: {
+            configFiles: [],
+          },
+        },
+        wsdlFile: {
+          value: "",
+          required: true,
+        },
+        wsdlFilePath: {
+          value: "",
+        },
+        filestodelete: { value: [] },
+        programs: [],
+        selectedPrograms: [],
+      },
+      inputs: 0,
+      outputs: 1,
+      paletteLabel: "PCML",
+      icon: "ndefault-datamodel/dm_entity-processor.svg",
+      label: function () {
+        return this.name || "PCML";
+      },
+      labelStyle: function () {
+        return this.name ? "node_label_italic" : "";
+      },
+      oneditinit: function (SD) {
+        const node = this;
+        const form = $("#dialog-form");
+        const typedFieldPrefix = "node-input-typed-";
+        const fileName = $("#node-input-wsdlFile").inputField({
+          value: node.wsdlFile,
+          placeholder: "PCML File",
+          validateOnCreate: true,
+          required: true,
+        });
+        function osPathConcatenator({ value }, v = "") {
+          return (
+            `os.${value}() + "` +
+            (!v || value.startsWith("/") ? v : "/" + v) +
+            `"`
+          );
+        }
+        form.find('input[type="typed"]').each(function () {
+          const inputElm = $(this);
+          const id = inputElm.attr("id");
+          $(this).typedInput(
+            id ? typedInputOptions[id.replace(typedFieldPrefix, "")] : null
+          );
+        });
+        $("#node-config-uplaodfile").on("click", () => {
+          $("#node-input-select-file").trigger("click");
+        });
+      },
+      oneditprepare: function (SD) {
+        let node = this;
+        node.tempVarStore = {
+          bhVariables: [],
+          localVariables: []
+        };
+        const doneBtn = $("#node-dialog-ok");
+        const form = $("#dialog-form");
+        if (!this.checkUpdate) {
+          this.bhVariables = [
+            {
+              key: "result",
+              defaultValue: {
+                type: "any",
+                value: "",
+              },
+              output: true,
+            },
+          ];
+        }
+        $("#node-generate-button").hide();
+        $("#node-input-typed-uploadpath").typedInput("value", "");
+        $("#node-generate-button").on("click", () => {
+            SD.nodes.callGenerateFlows(node.filePath, node.selectedPrograms);
+        });
+        if(node?.selectedPrograms == undefined){
+          node.selectedPrograms = []
+        }
+        if(node?.selectedPrograms.length >0){
+          generateCheckboxes();
+          $("#node-generate-button").show();
+        }
+        function uploadFiles(files, fileType) {
+          node.filePath = files[0].path;
+          for (let j = 0; j < files.length; j++) {
+            const filePaths = node.wsdlFiles.configFiles.map((f) => f.name);
+            if (filePaths.includes(files[j].name)) {
+              console.log("files already exist");
+              SD.dialogService.openSnackBar(`File already exists`);
+              $("#node-input-wsdlFile").val("");
+            } else {
+              node.wsdlFiles.configFiles.push({
+                name: files[j].name,
+                path: files[j].path,
+              });
+            }
+          }
+          SD.nodes.callGeneratePrograms(node.filePath).then((res) => {
+            node.programs = res.data;
+            generateCheckboxes();
+            $("#node-generate-button").show();
+          });
+        }
+        function generateCheckboxes() {
+          const checkboxContainer =
+            document.getElementById("checkbox-container");
+
+          // Clear any existing checkboxes
+          checkboxContainer.innerHTML = "";
+
+          // Iterate over the input data array and create checkboxes
+          node.programs.forEach((item, index) => {
+            const checkbox = document.createElement("input");
+            checkbox.type = "checkbox";
+            checkbox.name = item ;
+            checkbox.id = checkbox.name
+            if (node.selectedPrograms.includes(item)) {
+              checkbox.checked = true;
+            }
+            const checkboxLabel = document.createElement("label");
+            checkboxLabel.appendChild(checkbox);
+            const labelText = document.createTextNode(item);
+            checkboxLabel.appendChild(labelText);
+
+            // Create a new div for each checkbox to ensure vertical alignment
+            const checkboxDiv = document.createElement("div");
+            checkboxDiv.appendChild(checkboxLabel);
+
+            checkboxContainer.appendChild(checkboxDiv);
+            
+          });
+        }
+        $('#checkbox-container').on("click", (event) => {
+            const clickedElement = event.target;
+            if(node.selectedPrograms.includes(clickedElement.name)){
+                node.selectedPrograms.pop(clickedElement.name)
+            }else if(clickedElement.name !== undefined){
+                node.selectedPrograms.push(clickedElement.name)
+            }
+        })
+
+        function wsdlFileCheck() {
+          if ($("#node-input-wsdlFile").val() === "") {
+            return false;
+          } else {
+            return true;
+          }
+        }
+        function validateForm() {
+          let wsdl = wsdlFileCheck();
+          if (
+            [...$(".red-ui-typedInput-input.input-error")].some(
+              (e) => !$(e).is(":hidden")
+            ) ||
+            !wsdl
+          ) {
+            doneBtn.addClass("disabled");
+          } else {
+            doneBtn.removeClass("disabled");
+          }
+        }
+        $("#node-config-wsdlFile-clear").on("click", () => {
+          clearFilePaths("wsdlFile", "wsdlFilePath");
+          validateForm();
+        });
+        $("#node-input-select-file").change((changes) => {
+          /*When wsdl file is uploaded. store the file name and push to configFiles array*/
+          uploadFiles([...changes.target.files]);
+          $("#node-input-wsdlFile").inputField(
+            "value",
+            changes.target.files[0].name
+          );
+          validateForm();
+        });
+        function clearFilePaths(fileNameVar, filePathVar) {
+          if ($(`#node-input-${fileNameVar}`).val().length > 0) {
+            deleteFile($(`#node-input-${fileNameVar}`).val());
+            $(`#node-input-${fileNameVar}`).inputField("reset");
+            $(`#node-input-${fileNameVar}`).inputField("valid", false);
+            $(`#node-input-${filePathVar}`).val("");
+            $("#node-input-select-file").val("");
+          }
+        }
+        function deleteFile(filename) {
+          node.filestodelete.push(filename);
+          let configFiles = node.wsdlFiles.configFiles;
+          if (configFiles.length > 0) {
+            for (let i = 0; i < configFiles.length; i++) {
+              if (configFiles[i].name === filename) {
+                configFiles.splice(i, 1);
+              }
+            }
+            node.wsdlFiles.configFiles = configFiles;
+          }
+        }
+      },
+      oneditsave: function (SD) {
+        const node = this;
+        const form = $("#dialog-form");
+        this.bhVariables = this.tempVarStore.bhVariables.map((x) => ({
+          key: x.key,
+          defaultValue: x.defaultValue,
+          output: x.output,
+          keyType: x.keyType,
+          selectedPrograms: node.selectedPrograms
+        }));
+
+        this.localVariables = this.tempVarStore.localVariables.map((x) => ({
+          key: x.key,
+          defaultValue: x.defaultValue,
+          output: x.output,
+        }));
+        if (this.filestodelete.length > 0) {
+          SD.configNodesService.deleteConfigFile(
+            SD.appName,
+            "soap-config",
+            this.id,
+            this.filestodelete,
+            "wsdlFiles"
+          );
+          console.log(`File deleted`);
+          this.filestodelete = [];
+        }
+        delete this.tempVarStore;
+      },
+      oneditcancel: function () {
+        delete this.tempVarStore;
+      },
+      aftereditsave: function (changes) {},
+    },
+  });
 </script>
