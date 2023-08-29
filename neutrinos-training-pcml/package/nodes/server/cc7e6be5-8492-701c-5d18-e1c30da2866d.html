@@ -51,7 +51,7 @@
         },
         wsdlFiles: {
           value: {
-            configFiles: [],
+            configFiles: {},
           },
         },
         wsdlFile: {
@@ -68,7 +68,7 @@
       inputs: 0,
       outputs: 1,
       paletteLabel: "PCML",
-      icon: "ndefault-datamodel/dm_entity-processor.svg",
+      icon: "ndefault-all-nodes/pcml.svg",
       label: function () {
         return this.name || "PCML";
       },
@@ -102,6 +102,9 @@
         $("#node-config-uplaodfile").on("click", () => {
           $("#node-input-select-file").trigger("click");
         });
+		if(node.wsdlFiles.configFiles.path){
+			node.filePath = node.wsdlFiles.configFiles.path;
+		}
       },
       oneditprepare: function (SD) {
         let node = this;
@@ -136,20 +139,11 @@
           $("#node-generate-button").show();
         }
         function uploadFiles(files, fileType) {
-          node.filePath = files[0].path;
-          for (let j = 0; j < files.length; j++) {
-            const filePaths = node.wsdlFiles.configFiles.map((f) => f.name);
-            if (filePaths.includes(files[j].name)) {
-              console.log("files already exist");
-              SD.dialogService.openSnackBar(`File already exists`);
-              $("#node-input-wsdlFile").val("");
-            } else {
-              node.wsdlFiles.configFiles.push({
-                name: files[j].name,
-                path: files[j].path,
-              });
-            }
-          }
+          node.filePath = files.path;
+          node.wsdlFiles.configFiles = {
+                name: files.name,
+                path: files.path,
+              };
           SD.nodes.callGeneratePrograms(node.filePath).then((res) => {
             node.programs = res.data;
             generateCheckboxes();
@@ -157,6 +151,7 @@
           });
         }
         function generateCheckboxes() {
+			$('#checkbox-container').show();
           const checkboxContainer =
             document.getElementById("checkbox-container");
 
@@ -188,7 +183,7 @@
         $('#checkbox-container').on("click", (event) => {
             const clickedElement = event.target;
             if(node.selectedPrograms.includes(clickedElement.name)){
-                node.selectedPrograms.pop(clickedElement.name)
+                node.selectedPrograms = node.selectedPrograms.filter(item => item != clickedElement.name)
             }else if(clickedElement.name !== undefined){
                 node.selectedPrograms.push(clickedElement.name)
             }
@@ -220,7 +215,8 @@
         });
         $("#node-input-select-file").change((changes) => {
           /*When wsdl file is uploaded. store the file name and push to configFiles array*/
-          uploadFiles([...changes.target.files]);
+		  console.log("changesssss", changes);
+          uploadFiles(changes.target.files[0]);
           $("#node-input-wsdlFile").inputField(
             "value",
             changes.target.files[0].name
@@ -234,19 +230,15 @@
             $(`#node-input-${fileNameVar}`).inputField("valid", false);
             $(`#node-input-${filePathVar}`).val("");
             $("#node-input-select-file").val("");
+			$("#checkbox-container").hide();
+			$("#node-generate-button").hide();
+			node.programs = [];
+			node.selectedPrograms = [];
           }
         }
         function deleteFile(filename) {
           node.filestodelete.push(filename);
-          let configFiles = node.wsdlFiles.configFiles;
-          if (configFiles.length > 0) {
-            for (let i = 0; i < configFiles.length; i++) {
-              if (configFiles[i].name === filename) {
-                configFiles.splice(i, 1);
-              }
-            }
-            node.wsdlFiles.configFiles = configFiles;
-          }
+          node.wsdlFiles.configFiles = {}
         }
       },
       oneditsave: function (SD) {
