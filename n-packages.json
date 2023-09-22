@@ -8,7 +8,9 @@
         "publisher": "Neutrinos-training",
         "platformSupportVersion": {
             "min": "9.2.0"
-        }
+        },
+        "description": "Plugin to generate flows from a .pcml file to interact with AS400 system",
+        "pluginImage": "neutrinos-training-pcml-1693484492509.png"
     },
     "packages": [
         {
